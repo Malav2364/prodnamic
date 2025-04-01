@@ -9,8 +9,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Copy, Sparkles, Hash } from "lucide-react"
-import { toast } from "sonner" // Using sonner instead of the deprecated toast component
-import { ThemeProvider } from "@/components/theme-provider"
+import { toast } from "sonner" 
 
 export default function Home() {
   const [productName, setProductName] = useState("")
@@ -31,31 +30,53 @@ export default function Home() {
 
     setIsGenerating(true)
 
-    // Simulating API call
-    setTimeout(() => {
-      // This would be replaced with your actual API call
-      const mockDescription = `Introducing the ${productName}: the perfect solution for modern consumers looking for quality and innovation. This premium product combines elegant design with cutting-edge technology, making it an essential addition to your lifestyle. Expertly crafted with high-quality materials, the ${productName} offers unmatched durability and performance that will exceed your expectations.`
-      
-      const mockHashtags = [
+    try {
+      // Api Call
+      const descResponse = await fetch('/api/generate-description', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: productName,
+          shortDesc: productDescription
+        }),
+      });
+
+      if (!descResponse.ok) {
+        const errorData = await descResponse.json();
+        throw new Error(errorData.error || 'Failed to generate description');
+      }
+
+      const descData = await descResponse.json();
+
+      const hashtags = [
         `#${productName.replace(/\s+/g, '')}`,
         '#QualityProduct',
         '#MustHave',
         '#PremiumQuality',
         '#InnovativeDesign',
         '#CustomerFavorite',
-        '#BestSeller',
-        '#EssentialProduct'
-      ]
+        '#BestSeller'
+      ].filter(tag => tag.length > 1);
 
       setGeneratedContent({
-        description: mockDescription,
-        hashtags: mockHashtags
-      })
-      setIsGenerating(false)
+        description: descData.description,
+        hashtags: hashtags
+      });
+      
       toast.success("Content generated successfully!", {
         description: "Your product description and hashtags are ready."
-      })
-    }, 1500)
+      });
+
+    } catch (error) {
+      console.error('Generation error:', error);
+      toast.error("Generation failed", {
+        description: error.message || "Could not generate content. Please try again.",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
   }
 
   const copyToClipboard = (content) => {
@@ -88,7 +109,7 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="product-name" className="flex items-center gap-1">
-                  Product Name <span className="text-xs text-muted-foreground">(max 100 words)</span>
+                  Product Name <span className="text-xs text-muted-foreground">(max 100 chars)</span>
                 </Label>
                 <Input
                   id="product-name"
@@ -102,7 +123,7 @@ export default function Home() {
               
               <div className="space-y-2">
                 <Label htmlFor="product-description" className="flex items-center gap-1">
-                  Short Description <span className="text-xs text-muted-foreground">(max 250 words)</span>
+                  Short Description <span className="text-xs text-muted-foreground">(max 250 chars)</span>
                 </Label>
                 <Textarea
                   id="product-description"
@@ -190,7 +211,7 @@ export default function Home() {
           </CardContent>
           <CardFooter className="flex justify-center border-t px-6 py-4 relative z-10">
             <p className="text-sm text-muted-foreground">
-              Made with ❤️ for small businesses | © 2025 Prodnamic
+              Made with ❤️ By Malav Patel | Prodnamic
             </p>
           </CardFooter>
         </Card>
