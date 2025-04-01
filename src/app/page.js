@@ -1,7 +1,6 @@
 "use client"
 
 import React, { useState } from 'react'
-import { ModeToggle } from '@/components/toggle-button'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -87,13 +86,12 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">      
       <header className="container mx-auto p-6 flex justify-between items-center">
         <div>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">Prodnamic</h1>
           <p className="text-muted-foreground">Product content generator for small businesses</p>
         </div>
-        <ModeToggle />
       </header>
 
       <main className="container mx-auto px-6 py-8 max-w-5xl">
